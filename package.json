@@ -1,13 +1,13 @@
 {
-  "name": "CherryMuseDesktop",
+  "name": "cherry-muse-desktop",
   "version": "1.0.0",
   "description": "Markdown Editor",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
     "start": "electron ."
   },
   "private": true,
   "devDependencies": {
-    "electron": "^28.0.0"
+    "electron": "38.0.0-beta.6"
   }
 }
