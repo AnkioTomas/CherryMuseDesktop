@@ -168,11 +168,18 @@ function createWindow() {
       pendingFileToOpen = null;
     }
   });
+
+  // 窗口关闭时清理引用
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+    currentFilePath = null;
+  });
 }
 
 // 统一的文件打开函数
 function openFileInWindow(filePath) {
   if (!filePath || !fs.existsSync(filePath)) return;
+  if (!mainWindow || mainWindow.isDestroyed()) return;
   
   try {
     currentFilePath = filePath;
@@ -316,13 +323,15 @@ if (!gotTheLock) {
 app.on('open-file', (event, filePath) => {
   event.preventDefault();
   
-  if (mainWindow && mainWindow.webContents.isLoading()) {
-    // 窗口正在加载，稍后打开
-    pendingFileToOpen = filePath;
-  } else if (mainWindow) {
-    openFileInWindow(filePath);
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    if (mainWindow.webContents.isLoading()) {
+      // 窗口正在加载，稍后打开
+      pendingFileToOpen = filePath;
+    } else {
+      openFileInWindow(filePath);
+    }
   } else {
-    // 窗口还没创建，保存文件路径
+    // 窗口还没创建或已销毁，保存文件路径
     pendingFileToOpen = filePath;
   }
 });
