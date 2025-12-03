@@ -20,14 +20,12 @@
       {
         "ext": "md",
         "name": "Markdown",
-        "role": "Editor",
-        "icon": "src/icons/android-chrome-512x512.png"
+        "role": "Editor"
       },
       {
         "ext": "markdown",
         "name": "Markdown",
-        "role": "Editor",
-        "icon": "src/icons/android-chrome-512x512.png"
+        "role": "Editor"
       }
     ],
     "mac": {
