@@ -56,17 +56,13 @@
     // Typora 风格配置
     const cherry = new Cherry({
       id: 'editor-container',
-      value: '# 欢迎使用 Cherry Muse\n\n开始你的写作旅程...\n\n## 快捷键\n\n- `Cmd/Ctrl + O` - 打开文件\n- `Cmd/Ctrl + S` - 保存\n- `Cmd/Ctrl + Shift + S` - 另存为\n- `Cmd/Ctrl + /` - 切换编辑/预览模式\n\n## 特性\n\n- **极简设计** - 专注于写作\n- **实时预览** - 所见即所得\n- **快捷操作** - 提升效率\n\n开始写作吧！',
+      value: '',
       toolbars: {
         toolbar: false, // 隐藏工具栏
       },
       editor: {
         defaultModel: 'edit&preview', // 默认分屏模式
-      },
-      // 主题配置
-      theme: [
-        { className: 'default', label: '默认' }
-      ]
+      }
     });
 
     // 当前编辑模式

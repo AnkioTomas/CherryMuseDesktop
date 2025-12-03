@@ -9,7 +9,22 @@ let mainWindow;
 let currentFilePath = null;
 
 function createMenu() {
+  const isMac = process.platform === 'darwin';
+  
   const template = [
+    // macOS 需要显式创建应用菜单
+    ...(isMac ? [{
+      label: app.name,
+      submenu: [
+        { label: `关于 ${app.name}`, role: 'about' },
+        { type: 'separator' },
+        { label: '隐藏', accelerator: 'Command+H', role: 'hide' },
+        { label: '隐藏其他', accelerator: 'Command+Alt+H', role: 'hideOthers' },
+        { label: '全部显示', role: 'unhide' },
+        { type: 'separator' },
+        { label: '退出', accelerator: 'Command+Q', role: 'quit' }
+      ]
+    }] : []),
     {
       label: '文件',
       submenu: [
@@ -29,11 +44,12 @@ function createMenu() {
           click: () => mainWindow.webContents.send('menu-save-as')
         },
         { type: 'separator' },
-        {
+        // Windows/Linux 的退出放在文件菜单
+        ...(!isMac ? [{ 
           label: '退出',
-          accelerator: 'CmdOrCtrl+Q',
+          accelerator: 'Ctrl+Q',
           role: 'quit'
-        }
+        }] : [])
       ]
     },
     {
@@ -64,7 +80,7 @@ function createMenu() {
         { label: '放大', accelerator: 'CmdOrCtrl+Plus', role: 'zoomIn' },
         { label: '缩小', accelerator: 'CmdOrCtrl+-', role: 'zoomOut' },
         { type: 'separator' },
-        { label: '全屏', accelerator: 'F11', role: 'togglefullscreen' }
+        { label: '全屏', accelerator: isMac ? 'Ctrl+Command+F' : 'F11', role: 'togglefullscreen' }
       ]
     }
   ];
@@ -89,7 +105,7 @@ function createWindow() {
     minWidth: 800,
     minHeight: 600,
     icon: appIcon,
-    title: 'Cherry Muse',
+    title: app.name,
     titleBarStyle: 'default',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -114,7 +130,7 @@ ipcMain.handle('open-file', async () => {
     currentFilePath = result.filePaths[0];
     const content = fs.readFileSync(currentFilePath, 'utf-8');
     const fileName = path.basename(currentFilePath);
-    mainWindow.setTitle(`${fileName} - Cherry Muse`);
+    mainWindow.setTitle(`${fileName} - ${app.name}`);
     return { path: currentFilePath, content, fileName };
   }
   return null;
@@ -133,7 +149,7 @@ ipcMain.handle('save-file', async (event, content) => {
 
   fs.writeFileSync(currentFilePath, content, 'utf-8');
   const fileName = path.basename(currentFilePath);
-  mainWindow.setTitle(`${fileName} - Cherry Muse`);
+  mainWindow.setTitle(`${fileName} - ${app.name}`);
   return true;
 });
 
@@ -149,7 +165,7 @@ ipcMain.handle('save-file-as', async (event, content) => {
   currentFilePath = result.filePath;
   fs.writeFileSync(currentFilePath, content, 'utf-8');
   const fileName = path.basename(currentFilePath);
-  mainWindow.setTitle(`${fileName} - Cherry Muse`);
+  mainWindow.setTitle(`${fileName} - ${app.name}`);
   return true;
 });
 
