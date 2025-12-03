@@ -75,6 +75,9 @@
       }
     }
 
+    // 记录原始内容用于比较
+    let originalContent = '';
+
     // Typora 风格配置
     const cherry = new Cherry({
       id: 'editor-container',
@@ -88,6 +91,13 @@
       fileUpload: handleFileUpload
     });
 
+    // 监听 CodeMirror 的内容变化
+    cherry.editor.editor.on('change', () => {
+      const currentContent = cherry.getMarkdown();
+      const isEdited = currentContent !== originalContent;
+      window.electronAPI.setDocumentEdited(isEdited);
+    });
+
     // 当前编辑模式
     let currentMode = 'edit&preview';
     const modes = ['edit&preview', 'editOnly', 'previewOnly'];
@@ -96,6 +106,7 @@
     // 监听文件打开（拖拽或命令行）
     window.electronAPI.onFileOpened((event, result) => {
       if (result) {
+        originalContent = result.content;
         cherry.setMarkdown(result.content);
       }
     });
@@ -128,6 +139,7 @@
     window.electronAPI.onMenuOpen(async () => {
       const result = await window.electronAPI.openFile();
       if (result) {
+        originalContent = result.content;
         cherry.setMarkdown(result.content);
       }
     });
@@ -135,13 +147,19 @@
     // 菜单：保存
     window.electronAPI.onMenuSave(async () => {
       const content = cherry.getMarkdown();
-      await window.electronAPI.saveFile(content);
+      const saved = await window.electronAPI.saveFile(content);
+      if (saved) {
+        originalContent = content;
+      }
     });
 
     // 菜单：另存为
     window.electronAPI.onMenuSaveAs(async () => {
       const content = cherry.getMarkdown();
-      await window.electronAPI.saveFileAs(content);
+      const saved = await window.electronAPI.saveFileAs(content);
+      if (saved) {
+        originalContent = content;
+      }
     });
 
     // 菜单：切换模式
@@ -157,19 +175,26 @@
       if ((e.metaKey || e.ctrlKey) && e.key === 's' && !e.shiftKey) {
         e.preventDefault();
         const content = cherry.getMarkdown();
-        await window.electronAPI.saveFile(content);
+        const saved = await window.electronAPI.saveFile(content);
+        if (saved) {
+          originalContent = content;
+        }
       }
       // Cmd/Ctrl + Shift + S
       else if ((e.metaKey || e.ctrlKey) && e.key === 's' && e.shiftKey) {
         e.preventDefault();
         const content = cherry.getMarkdown();
-        await window.electronAPI.saveFileAs(content);
+        const saved = await window.electronAPI.saveFileAs(content);
+        if (saved) {
+          originalContent = content;
+        }
       }
       // Cmd/Ctrl + O
       else if ((e.metaKey || e.ctrlKey) && e.key === 'o') {
         e.preventDefault();
         const result = await window.electronAPI.openFile();
         if (result) {
+          originalContent = result.content;
           cherry.setMarkdown(result.content);
         }
       }

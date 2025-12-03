@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveFile: (content) => ipcRenderer.invoke('save-file', content),
   saveFileAs: (content) => ipcRenderer.invoke('save-file-as', content),
   saveImage: (imageBuffer, extension) => ipcRenderer.invoke('save-image', imageBuffer, extension),
+  setDocumentEdited: (edited) => ipcRenderer.send('set-document-edited', edited),
   onMenuOpen: (callback) => ipcRenderer.on('menu-open', callback),
   onMenuSave: (callback) => ipcRenderer.on('menu-save', callback),
   onMenuSaveAs: (callback) => ipcRenderer.on('menu-save-as', callback),

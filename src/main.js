@@ -18,6 +18,7 @@ app.setAboutPanelOptions({
 let mainWindow;
 let currentFilePath = null;
 let pendingFileToOpen = null;
+let isDocumentEdited = false;
 
 // 图片扩展名
 const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.svg', '.ico']);
@@ -169,11 +170,52 @@ function createWindow() {
     }
   });
 
+  // 关闭前检查是否有未保存的内容
+  mainWindow.on('close', (event) => {
+    if (isDocumentEdited) {
+      event.preventDefault();
+      
+      const choice = dialog.showMessageBoxSync(mainWindow, {
+        type: 'question',
+        buttons: ['保存', '不保存', '取消'],
+        defaultId: 0,
+        cancelId: 2,
+        title: '未保存的更改',
+        message: '当前文档有未保存的更改，是否保存？'
+      });
+      
+      if (choice === 0) {
+        // 保存 - 通知渲染进程保存
+        mainWindow.webContents.send('menu-save');
+        // 保存后会重置 isDocumentEdited，然后用户需要再次关闭
+      } else if (choice === 1) {
+        // 不保存 - 直接关闭
+        isDocumentEdited = false;
+        mainWindow.close();
+      }
+      // choice === 2 取消 - 什么都不做
+    }
+  });
+
   // 窗口关闭时清理引用
   mainWindow.on('closed', () => {
     mainWindow = null;
     currentFilePath = null;
+    isDocumentEdited = false;
   });
+}
+
+// 更新窗口标题
+function updateWindowTitle() {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  
+  const fileName = currentFilePath ? path.basename(currentFilePath) : '未命名';
+  mainWindow.setTitle(`${fileName} - ${app.name}`);
+  
+  // macOS 原生编辑标记（关闭按钮上显示小点）
+  if (process.platform === 'darwin') {
+    mainWindow.setDocumentEdited(isDocumentEdited);
+  }
 }
 
 // 统一的文件打开函数
@@ -183,9 +225,10 @@ function openFileInWindow(filePath) {
   
   try {
     currentFilePath = filePath;
+    isDocumentEdited = false;
     const content = fs.readFileSync(filePath, 'utf-8');
     const fileName = path.basename(filePath);
-    mainWindow.setTitle(`${fileName} - ${app.name}`);
+    updateWindowTitle();
     mainWindow.webContents.send('file-opened', { path: filePath, content, fileName });
   } catch (error) {
     console.error('打开文件失败:', error);
@@ -201,9 +244,10 @@ ipcMain.handle('open-file', async () => {
 
   if (!result.canceled && result.filePaths.length > 0) {
     currentFilePath = result.filePaths[0];
+    isDocumentEdited = false;
     const content = fs.readFileSync(currentFilePath, 'utf-8');
     const fileName = path.basename(currentFilePath);
-    mainWindow.setTitle(`${fileName} - ${app.name}`);
+    updateWindowTitle();
     return { path: currentFilePath, content, fileName };
   }
   return null;
@@ -221,8 +265,8 @@ ipcMain.handle('save-file', async (event, content) => {
   }
 
   fs.writeFileSync(currentFilePath, content, 'utf-8');
-  const fileName = path.basename(currentFilePath);
-  mainWindow.setTitle(`${fileName} - ${app.name}`);
+  isDocumentEdited = false;
+  updateWindowTitle();
   return true;
 });
 
@@ -237,8 +281,8 @@ ipcMain.handle('save-file-as', async (event, content) => {
   
   currentFilePath = result.filePath;
   fs.writeFileSync(currentFilePath, content, 'utf-8');
-  const fileName = path.basename(currentFilePath);
-  mainWindow.setTitle(`${fileName} - ${app.name}`);
+  isDocumentEdited = false;
+  updateWindowTitle();
   return true;
 });
 
@@ -287,6 +331,12 @@ ipcMain.handle('save-image', async (event, imageBuffer, extension) => {
   }
 });
 
+// 设置文档编辑状态
+ipcMain.on('set-document-edited', (event, edited) => {
+  isDocumentEdited = edited;
+  updateWindowTitle();
+});
+
 // 确保单实例运行
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -324,15 +374,20 @@ app.on('open-file', (event, filePath) => {
   event.preventDefault();
   
   if (mainWindow && !mainWindow.isDestroyed()) {
+    // 窗口存在，聚焦并打开文件
+    mainWindow.show();
+    mainWindow.focus();
     if (mainWindow.webContents.isLoading()) {
-      // 窗口正在加载，稍后打开
       pendingFileToOpen = filePath;
     } else {
       openFileInWindow(filePath);
     }
   } else {
-    // 窗口还没创建或已销毁，保存文件路径
+    // 窗口不存在，保存文件路径并创建窗口
     pendingFileToOpen = filePath;
+    if (app.isReady()) {
+      createWindow();
+    }
   }
 });
 
