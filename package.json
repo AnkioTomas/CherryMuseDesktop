@@ -3,7 +3,10 @@
   "productName": "Cherry Muse",
   "version": "1.0.0",
   "description": "Elegant Markdown Editor",
-  "author": "Ankio",
+  "author": {
+    "name": "Ankio",
+    "email": "ankio@ankio.net"
+  },
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
@@ -45,6 +48,7 @@
     },
     "linux": {
       "icon": "src/icons/android-chrome-512x512.png",
+      "category": "Office",
       "target": [
         "AppImage",
         "deb"
