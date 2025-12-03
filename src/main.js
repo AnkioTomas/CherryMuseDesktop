@@ -6,6 +6,15 @@ const crypto = require('crypto');
 // 设置应用名称
 app.name = 'Cherry Muse';
 
+// 设置关于面板信息（macOS）
+app.setAboutPanelOptions({
+  applicationName: 'Cherry Muse',
+  applicationVersion: '1.0.0',
+  copyright: '© 2025 Ankio. All rights reserved.',
+  website: 'https://cherry.ankio.net/',
+  authors: ['Ankio']
+});
+
 let mainWindow;
 let currentFilePath = null;
 let pendingFileToOpen = null;

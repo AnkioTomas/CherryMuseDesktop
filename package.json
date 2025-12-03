@@ -3,7 +3,7 @@
   "productName": "Cherry Muse",
   "version": "1.0.0",
   "description": "Elegant Markdown Editor",
-  "author": "Your Name",
+  "author": "Ankio",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
