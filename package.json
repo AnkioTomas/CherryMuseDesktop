@@ -6,10 +6,32 @@
   "author": "Your Name",
   "main": "src/main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.cherrymuse.desktop",
+    "productName": "Cherry Muse",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "src/icons/android-chrome-512x512.png",
+      "target": ["dmg", "zip"]
+    },
+    "win": {
+      "icon": "src/icons/android-chrome-512x512.png",
+      "target": ["nsis", "portable"]
+    },
+    "linux": {
+      "icon": "src/icons/android-chrome-512x512.png",
+      "target": ["AppImage", "deb"]
+    },
+    "files": [
+      "src/**/*"
+    ]
   },
   "private": true,
   "devDependencies": {
-    "electron": "38.0.0-beta.6"
+    "electron": "38.0.0-beta.6",
+    "electron-builder": "^24.13.3"
   }
 }
