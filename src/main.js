@@ -1,6 +1,9 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, nativeImage } = require('electron');
 const fs = require('fs');
 const path = require('path');
+
+// 设置应用名称
+app.name = 'Cherry Muse';
 
 let mainWindow;
 let currentFilePath = null;
@@ -71,12 +74,22 @@ function createMenu() {
 }
 
 function createWindow() {
+  // 创建应用图标
+  const iconPath = path.join(__dirname, 'icons', 'android-chrome-512x512.png');
+  const appIcon = nativeImage.createFromPath(iconPath);
+  
+  // macOS 下设置 Dock 图标
+  if (process.platform === 'darwin') {
+    app.dock.setIcon(appIcon);
+  }
+
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
     minWidth: 800,
     minHeight: 600,
-    icon: path.join(__dirname, 'icons', process.platform === 'darwin' ? 'favicon.ico' : 'android-chrome-512x512.png'),
+    icon: appIcon,
+    title: 'Cherry Muse',
     titleBarStyle: 'default',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

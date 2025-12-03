@@ -1,7 +1,9 @@
 {
   "name": "cherry-muse-desktop",
+  "productName": "Cherry Muse",
   "version": "1.0.0",
-  "description": "Markdown Editor",
+  "description": "Elegant Markdown Editor",
+  "author": "Your Name",
   "main": "src/main.js",
   "scripts": {
     "start": "electron ."
