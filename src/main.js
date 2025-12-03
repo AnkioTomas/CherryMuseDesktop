@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu, nativeImage } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, nativeImage, protocol } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -9,6 +9,38 @@ app.name = 'Cherry Muse';
 let mainWindow;
 let currentFilePath = null;
 let pendingFileToOpen = null;
+
+// 图片扩展名
+const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.svg', '.ico']);
+
+// 拦截图片请求，将相对路径重定向到 MD 文件目录
+function setupImageProtocolInterceptor() {
+  const rendererDir = __dirname;
+  
+  // noinspection JSDeprecatedSymbols
+  protocol.interceptFileProtocol('file', (request, callback) => {
+    let filePath = decodeURIComponent(request.url.replace('file://', ''));
+    
+    // Windows: /C:/path → C:/path
+    if (process.platform === 'win32' && filePath.startsWith('/')) {
+      filePath = filePath.substring(1);
+    }
+    
+    const ext = path.extname(filePath).toLowerCase();
+    
+    // 只拦截图片 + 有打开的文件 + 原路径不存在 + 路径在 renderer 目录下
+    if (IMAGE_EXTENSIONS.has(ext) && currentFilePath && !fs.existsSync(filePath) && filePath.startsWith(rendererDir)) {
+      const relativePath = path.relative(rendererDir, filePath);
+      const redirectedPath = path.join(path.dirname(currentFilePath), relativePath);
+      
+      if (fs.existsSync(redirectedPath)) {
+        return callback({ path: redirectedPath });
+      }
+    }
+    
+    callback({ path: filePath });
+  });
+}
 
 function createMenu() {
   const isMac = process.platform === 'darwin';
@@ -260,6 +292,7 @@ if (!gotTheLock) {
   });
 
   app.whenReady().then(() => {
+    setupImageProtocolInterceptor();
     createWindow();
     
     // 处理启动时的命令行参数
