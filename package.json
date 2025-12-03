@@ -7,23 +7,54 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder"
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux",
+    "build:all": "electron-builder -mwl"
   },
   "build": {
     "appId": "com.cherrymuse.desktop",
     "productName": "Cherry Muse",
+    "fileAssociations": [
+      {
+        "ext": "md",
+        "name": "Markdown",
+        "role": "Editor",
+        "icon": "src/icons/android-chrome-512x512.png"
+      },
+      {
+        "ext": "markdown",
+        "name": "Markdown",
+        "role": "Editor",
+        "icon": "src/icons/android-chrome-512x512.png"
+      }
+    ],
     "mac": {
       "category": "public.app-category.productivity",
       "icon": "src/icons/android-chrome-512x512.png",
-      "target": ["dmg", "zip"]
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "win": {
       "icon": "src/icons/android-chrome-512x512.png",
-      "target": ["nsis", "portable"]
+      "target": [
+        "nsis",
+        "portable"
+      ]
     },
     "linux": {
       "icon": "src/icons/android-chrome-512x512.png",
-      "target": ["AppImage", "deb"]
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "mimeTypes": [
+        "text/markdown",
+        "text/x-markdown"
+      ]
     },
     "files": [
       "src/**/*"
@@ -32,6 +63,6 @@
   "private": true,
   "devDependencies": {
     "electron": "38.0.0-beta.6",
-    "electron-builder": "^24.13.3"
+    "electron-builder": "^26.0.12"
   }
 }

@@ -53,6 +53,28 @@
 
   <script src="./lib/cherry-markdown.min.js"></script>
   <script>
+    // 处理图片上传
+    async function handleFileUpload(file, callback) {
+      try {
+        // 读取文件为 ArrayBuffer
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = new Uint8Array(arrayBuffer);
+        
+        // 获取文件扩展名
+        const extension = file.name.split('.').pop() || 'png';
+        
+        // 调用主进程保存图片
+        const relativePath = await window.electronAPI.saveImage(buffer, extension);
+        
+        if (relativePath) {
+          // 返回 markdown 图片语法
+          callback(relativePath);
+        }
+      } catch (error) {
+        console.error('上传图片失败:', error);
+      }
+    }
+
     // Typora 风格配置
     const cherry = new Cherry({
       id: 'editor-container',
@@ -62,13 +84,45 @@
       },
       editor: {
         defaultModel: 'edit&preview', // 默认分屏模式
-      }
+      },
+      fileUpload: handleFileUpload
     });
 
     // 当前编辑模式
     let currentMode = 'edit&preview';
     const modes = ['edit&preview', 'editOnly', 'previewOnly'];
     let modeIndex = 0;
+
+    // 监听文件打开（拖拽或命令行）
+    window.electronAPI.onFileOpened((event, result) => {
+      if (result) {
+        cherry.setMarkdown(result.content);
+      }
+    });
+
+    // 拖拽文件打开
+    const editorContainer = document.getElementById('editor-container');
+    editorContainer.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+    
+    editorContainer.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const files = Array.from(e.dataTransfer.files);
+      const mdFile = files.find(f => f.name.endsWith('.md') || f.name.endsWith('.markdown'));
+      
+      if (mdFile) {
+        // 读取文件内容
+        const content = await mdFile.text();
+        cherry.setMarkdown(content);
+        
+        // 通过 IPC 保存文件路径（需要保存才能处理图片）
+        await window.electronAPI.saveFile(content);
+      }
+    });
 
     // 菜单：打开文件
     window.electronAPI.onMenuOpen(async () => {
