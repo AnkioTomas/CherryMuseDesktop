@@ -57,9 +57,9 @@
   optionalDependencies:
     global-agent "^3.0.0"
 
-"@electron/node-gyp@git+https://github.com/electron/node-gyp.git#06b29aafb7708acef8b3669835c8a7857ebc92d2":
+"@electron/node-gyp@https://github.com/electron/node-gyp#06b29aafb7708acef8b3669835c8a7857ebc92d2":
   version "10.2.0-electron.1"
-  resolved "git+https://github.com/electron/node-gyp.git#06b29aafb7708acef8b3669835c8a7857ebc92d2"
+  resolved "https://github.com/electron/node-gyp#06b29aafb7708acef8b3669835c8a7857ebc92d2"
   dependencies:
     env-paths "^2.2.0"
     exponential-backoff "^3.1.1"
@@ -592,9 +592,9 @@ chalk@^4.0.0, chalk@^4.1.0, chalk@^4.1.1, chalk@^4.1.2:
     supports-color "^7.1.0"
 
 cherry-muse@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.npmmirror.com/cherry-muse/-/cherry-muse-1.0.2.tgz#c412d7f4ad95381ad900adbdd75cb5f2a3921fcb"
-  integrity sha512-k23ydR8jm/hzCDS7dqhQ/dLSr4hmwsT9zAS1xvm6x2UrrETveg2MdesSb5IiWo3SOcAaAgx5MkrwGjxqpCuxnw==
+  version "1.0.4"
+  resolved "https://registry.npmmirror.com/cherry-muse/-/cherry-muse-1.0.4.tgz#b892880e2d30984a4151ce248261c121f94102fa"
+  integrity sha512-+qTDgfTvgfBkoaSiftk3GHyz3/kghSObEnuFTx06f3lqV8UUiCZ2rp9xDw81ZD0r5Pgery9rkSJ4r3XM4WzVdw==
 
 chownr@^2.0.0:
   version "2.0.0"

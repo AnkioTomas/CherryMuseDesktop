@@ -68,6 +68,6 @@
     "electron-builder": "^26.0.12"
   },
   "dependencies": {
-    "cherry-muse": "^1.0.2"
+    "cherry-muse": "^1.0.4"
   }
 }
