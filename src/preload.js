@@ -6,9 +6,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveFileAs: (content) => ipcRenderer.invoke('save-file-as', content),
   saveImage: (imageBuffer, extension) => ipcRenderer.invoke('save-image', imageBuffer, extension),
   setDocumentEdited: (edited) => ipcRenderer.send('set-document-edited', edited),
-  onMenuOpen: (callback) => ipcRenderer.on('menu-open', callback),
-  onMenuSave: (callback) => ipcRenderer.on('menu-save', callback),
-  onMenuSaveAs: (callback) => ipcRenderer.on('menu-save-as', callback),
-  onMenuToggleMode: (callback) => ipcRenderer.on('menu-toggle-mode', callback),
+  onMenuSave: (callback) => ipcRenderer.on('menu-save', callback), // 关闭窗口时的保存
   onFileOpened: (callback) => ipcRenderer.on('file-opened', callback)
 });

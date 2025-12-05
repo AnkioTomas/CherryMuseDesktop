@@ -15,18 +15,21 @@ function isWindowValid() {
 function updateTitle() {
   if (!isWindowValid()) return;
   
-  const fileName = documentState.getFilePath() 
-    ? path.basename(documentState.getFilePath()) 
-    : '未命名';
-  mainWindow.setTitle(`${fileName} - ${app.name}`);
+  const filePath = documentState.getFilePath();
+  const fileName = filePath ? path.basename(filePath) : '未命名';
   
+  // 所有平台：未保存时在文件名前加星号
+  const prefix = documentState.isDocumentEdited() ? '* ' : '';
+  mainWindow.setTitle(`${prefix}${fileName} - ${app.name}`);
+  
+  // macOS 额外：在关闭按钮上显示圆点
   if (process.platform === 'darwin') {
     mainWindow.setDocumentEdited(documentState.isDocumentEdited());
   }
 }
 
 function createWindow(onFileOpened) {
-  // 禁用默认菜单，使用 Cherry Markdown 自定义菜单
+  // 禁用默认菜单，使用快捷键代替
   Menu.setApplicationMenu(null);
   
   const iconPath = path.join(__dirname, '../icons', 'android-chrome-512x512.png');

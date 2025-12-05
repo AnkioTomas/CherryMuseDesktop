@@ -103,11 +103,20 @@
     const modes = ['edit&preview', 'editOnly', 'previewOnly'];
     let modeIndex = 0;
 
-    // 监听文件打开（拖拽或命令行）
+    // 监听文件打开（命令行参数或拖拽）
     window.electronAPI.onFileOpened((event, result) => {
       if (result) {
         originalContent = result.content;
         cherry.setMarkdown(result.content);
+      }
+    });
+
+    // 监听保存事件（关闭窗口时触发）
+    window.electronAPI.onMenuSave(async () => {
+      const content = cherry.getMarkdown();
+      const saved = await window.electronAPI.saveFile(content);
+      if (saved) {
+        originalContent = content;
       }
     });
 
@@ -135,41 +144,7 @@
       }
     });
 
-    // 菜单：打开文件
-    window.electronAPI.onMenuOpen(async () => {
-      const result = await window.electronAPI.openFile();
-      if (result) {
-        originalContent = result.content;
-        cherry.setMarkdown(result.content);
-      }
-    });
-
-    // 菜单：保存
-    window.electronAPI.onMenuSave(async () => {
-      const content = cherry.getMarkdown();
-      const saved = await window.electronAPI.saveFile(content);
-      if (saved) {
-        originalContent = content;
-      }
-    });
-
-    // 菜单：另存为
-    window.electronAPI.onMenuSaveAs(async () => {
-      const content = cherry.getMarkdown();
-      const saved = await window.electronAPI.saveFileAs(content);
-      if (saved) {
-        originalContent = content;
-      }
-    });
-
-    // 菜单：切换模式
-    window.electronAPI.onMenuToggleMode(() => {
-      modeIndex = (modeIndex + 1) % modes.length;
-      currentMode = modes[modeIndex];
-      cherry.switchModel(currentMode);
-    });
-
-    // 快捷键：保存
+    // 快捷键
     document.addEventListener('keydown', async (e) => {
       // Cmd/Ctrl + S
       if ((e.metaKey || e.ctrlKey) && e.key === 's' && !e.shiftKey) {
