@@ -19,8 +19,13 @@ function setupImageProtocolInterceptor() {
       filePath = filePath.substring(1);
     }
     
+    // 统一路径分隔符为系统标准格式
+    filePath = path.normalize(filePath);
+    
     const ext = path.extname(filePath).toLowerCase();
     const currentFile = documentState.currentFilePath;
+
+
     // 只拦截图片 + 有打开的文件 + 原路径不存在 + 路径在 renderer 目录下
     if (IMAGE_EXTENSIONS.has(ext) && currentFile && !fs.existsSync(filePath) && filePath.startsWith(rendererDir)) {
       const relativePath = path.relative(rendererDir, filePath);
@@ -33,6 +38,7 @@ function setupImageProtocolInterceptor() {
 
     callback({ path: filePath });
   });
+
 }
 
 function setupImageHandler() {
