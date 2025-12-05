@@ -6,35 +6,74 @@ on:
       - 'v*'
 
 jobs:
-  release:
-    runs-on: macos-latest
-    permissions:
-      contents: write
-
+  # 并行构建各平台
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            platform: mac
+            script: build:mac
+          - os: windows-latest
+            platform: win
+            script: build:win
+          - os: ubuntu-latest
+            platform: linux
+            script: build:linux
+    
+    runs-on: ${{ matrix.os }}
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # 获取完整历史记录以生成 changelog
-
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'yarn'
-
+      
       - name: Install Dependencies
         run: yarn install
+      
+      - name: Build ${{ matrix.platform }}
+        run: yarn ${{ matrix.script }}
+      
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}-build
+          path: dist/*
+          retention-days: 1
 
+  # 统一发布
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
       - name: Generate Changelog
         id: changelog
         run: node scripts/release.js
-
-      - name: Build All Platforms
-        run: yarn build:all
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+      
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
