@@ -144,11 +144,9 @@
       
       if (mdFile) {
         const content = await mdFile.text();
-        
-        // 发送文件路径到主进程
-        await window.electronAPI.setFilePath(mdFile);
-        
         openFileWithContent(content);
+        // 通过 IPC 保存文件路径（用于后续图片处理）
+        await window.electronAPI.saveFile(content);
       }
     });
 
