@@ -9,8 +9,8 @@ function openFileInWindow(filePath) {
   if (!windowManager.isWindowValid()) return;
   
   try {
-    documentState.setFilePath(filePath);
-    documentState.setEdited(false);
+    documentState.currentFilePath = filePath;
+    documentState.isEdited = false;
     
     const content = fs.readFileSync(filePath, 'utf-8');
     const fileName = path.basename(filePath);
@@ -31,14 +31,14 @@ function setupFileHandlers() {
     });
 
     if (!result.canceled && result.filePaths.length > 0) {
-      documentState.setFilePath(result.filePaths[0]);
-      documentState.setEdited(false);
+      documentState.currentFilePath = result.filePaths[0];
+      documentState.isEdited = false;
       
-      const content = fs.readFileSync(documentState.getFilePath(), 'utf-8');
-      const fileName = path.basename(documentState.getFilePath());
+      const content = fs.readFileSync(documentState.currentFilePath, 'utf-8');
+      const fileName = path.basename(documentState.currentFilePath);
       
       windowManager.updateTitle();
-      return { path: documentState.getFilePath(), content, fileName };
+      return { path: documentState.currentFilePath, content, fileName };
     }
     return null;
   });
@@ -46,17 +46,17 @@ function setupFileHandlers() {
   ipcMain.handle('save-file', async (event, content) => {
     const mainWindow = windowManager.getWindow();
     
-    if (!documentState.getFilePath()) {
+    if (!documentState.currentFilePath) {
       const result = await dialog.showSaveDialog(mainWindow, {
         defaultPath: 'Untitled.md',
         filters: [{ name: 'Markdown', extensions: ['md'] }]
       });
       if (result.canceled) return false;
-      documentState.setFilePath(result.filePath);
+      documentState.currentFilePath = result.filePath;
     }
 
-    fs.writeFileSync(documentState.getFilePath(), content, 'utf-8');
-    documentState.setEdited(false);
+    fs.writeFileSync(documentState.currentFilePath, content, 'utf-8');
+    documentState.isEdited = false;
     windowManager.updateTitle();
     return true;
   });
@@ -64,21 +64,21 @@ function setupFileHandlers() {
   ipcMain.handle('save-file-as', async (event, content) => {
     const mainWindow = windowManager.getWindow();
     const result = await dialog.showSaveDialog(mainWindow, {
-      defaultPath: documentState.getFilePath() || 'Untitled.md',
+      defaultPath: documentState.currentFilePath || 'Untitled.md',
       filters: [{ name: 'Markdown', extensions: ['md'] }]
     });
     
     if (result.canceled) return false;
     
-    documentState.setFilePath(result.filePath);
-    fs.writeFileSync(documentState.getFilePath(), content, 'utf-8');
-    documentState.setEdited(false);
+    documentState.currentFilePath = result.filePath;
+    fs.writeFileSync(documentState.currentFilePath, content, 'utf-8');
+    documentState.isEdited = false;
     windowManager.updateTitle();
     return true;
   });
 
   ipcMain.on('set-document-edited', (event, edited) => {
-    documentState.setEdited(edited);
+    documentState.isEdited = edited;
     windowManager.updateTitle();
   });
 }

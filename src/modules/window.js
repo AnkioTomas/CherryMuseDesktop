@@ -15,16 +15,16 @@ function isWindowValid() {
 function updateTitle() {
   if (!isWindowValid()) return;
   
-  const filePath = documentState.getFilePath();
+  const filePath = documentState.currentFilePath;
   const fileName = filePath ? path.basename(filePath) : '未命名';
   
   // 所有平台：未保存时在文件名前加星号
-  const prefix = documentState.isDocumentEdited() ? '* ' : '';
+  const prefix = documentState.isEdited ? '* ' : '';
   mainWindow.setTitle(`${prefix}${fileName} - ${app.name}`);
   
   // macOS 额外：在关闭按钮上显示圆点
   if (process.platform === 'darwin') {
-    mainWindow.setDocumentEdited(documentState.isDocumentEdited());
+    mainWindow.setDocumentEdited(documentState.isEdited);
   }
 }
 
@@ -57,14 +57,15 @@ function createWindow(onFileOpened) {
   mainWindow.loadFile(path.join(__dirname, '../renderer.html'));
 
   mainWindow.webContents.on('did-finish-load', () => {
-    const pending = documentState.getPendingFile();
+    const pending = documentState.pendingFile;
     if (pending && onFileOpened) {
       onFileOpened(pending);
+      documentState.pendingFile = null;
     }
   });
 
   mainWindow.on('close', (event) => {
-    if (!documentState.isDocumentEdited()) return;
+    if (!documentState.isEdited) return;
     
     event.preventDefault();
     
@@ -80,7 +81,7 @@ function createWindow(onFileOpened) {
     if (choice === 0) {
       mainWindow.webContents.send('menu-save');
     } else if (choice === 1) {
-      documentState.setEdited(false);
+      documentState.isEdited = false;
       mainWindow.close();
     }
   });

@@ -20,7 +20,7 @@ function setupImageProtocolInterceptor() {
     }
     
     const ext = path.extname(filePath).toLowerCase();
-    const currentFile = documentState.getFilePath();
+    const currentFile = documentState.currentFilePath;
     
     // 只拦截图片 + 有打开的文件 + 原路径不存在 + 路径在 renderer 目录下
     if (IMAGE_EXTENSIONS.has(ext) && currentFile && !fs.existsSync(filePath) && filePath.startsWith(rendererDir)) {
@@ -39,7 +39,7 @@ function setupImageProtocolInterceptor() {
 function setupImageHandler() {
   ipcMain.handle('save-image', async (event, imageBuffer, extension) => {
     const mainWindow = windowManager.getWindow();
-    const currentFile = documentState.getFilePath();
+    const currentFile = documentState.currentFilePath;
     
     if (!currentFile) {
       dialog.showMessageBoxSync(mainWindow, {

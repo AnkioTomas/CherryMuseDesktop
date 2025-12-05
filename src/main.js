@@ -46,7 +46,7 @@ if (!gotTheLock) {
     // 处理启动时的命令行参数
     const filePath = process.argv.find(arg => arg.endsWith('.md') || arg.endsWith('.markdown'));
     if (filePath && fs.existsSync(filePath)) {
-      documentState.setPendingFile(path.resolve(filePath));
+      documentState.pendingFile = path.resolve(filePath);
     }
   });
 }
@@ -60,12 +60,12 @@ app.on('open-file', (event, filePath) => {
     mainWindow.show();
     mainWindow.focus();
     if (mainWindow.webContents.isLoading()) {
-      documentState.setPendingFile(filePath);
+      documentState.pendingFile = filePath;
     } else {
       fileHandler.openFileInWindow(filePath);
     }
   } else {
-    documentState.setPendingFile(filePath);
+    documentState.pendingFile = filePath;
     if (app.isReady()) {
       windowManager.createWindow(fileHandler.openFileInWindow);
     }
