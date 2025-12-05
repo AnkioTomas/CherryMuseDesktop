@@ -81,6 +81,13 @@ function setupFileHandlers() {
     documentState.isEdited = edited;
     windowManager.updateTitle();
   });
+
+  ipcMain.on('set-file-path', (event, filePath) => {
+    console.log('[主进程] 设置文件路径:', filePath);
+    documentState.currentFilePath = filePath;
+    documentState.isEdited = false;
+    windowManager.updateTitle();
+  });
 }
 
 module.exports = {

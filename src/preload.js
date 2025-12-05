@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, webUtils } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
   openFile: () => ipcRenderer.invoke('open-file'),
@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveFileAs: (content) => ipcRenderer.invoke('save-file-as', content),
   saveImage: (imageBuffer, extension) => ipcRenderer.invoke('save-image', imageBuffer, extension),
   setDocumentEdited: (edited) => ipcRenderer.send('set-document-edited', edited),
-  onMenuSave: (callback) => ipcRenderer.on('menu-save', callback), // 关闭窗口时的保存
+  setFilePath: (file) => ipcRenderer.send('set-file-path', webUtils.getPathForFile(file)),
+  onMenuSave: (callback) => ipcRenderer.on('menu-save', callback),
   onFileOpened: (callback) => ipcRenderer.on('file-opened', callback)
 });

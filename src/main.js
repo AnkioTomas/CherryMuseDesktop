@@ -37,12 +37,14 @@ if (!gotTheLock) {
   });
 
   app.whenReady().then(() => {
+    // protocol 拦截必须在 ready 之后、创建窗口之前
     imageHandler.setupImageProtocolInterceptor();
+    
     fileHandler.setupFileHandlers();
     imageHandler.setupImageHandler();
     
     windowManager.createWindow(fileHandler.openFileInWindow);
-    
+
     // 处理启动时的命令行参数
     const filePath = process.argv.find(arg => arg.endsWith('.md') || arg.endsWith('.markdown'));
     if (filePath && fs.existsSync(filePath)) {
@@ -75,6 +77,7 @@ app.on('open-file', (event, filePath) => {
 app.on('window-all-closed', () => {
    app.quit();
 });
+
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {

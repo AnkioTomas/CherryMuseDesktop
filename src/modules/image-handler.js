@@ -9,7 +9,7 @@ const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bm
 
 function setupImageProtocolInterceptor() {
   const rendererDir = path.join(__dirname, '..');
-  
+
   // noinspection JSDeprecatedSymbols
   protocol.interceptFileProtocol('file', (request, callback) => {
     let filePath = decodeURIComponent(request.url.replace('file://', ''));
@@ -21,7 +21,6 @@ function setupImageProtocolInterceptor() {
     
     const ext = path.extname(filePath).toLowerCase();
     const currentFile = documentState.currentFilePath;
-    
     // 只拦截图片 + 有打开的文件 + 原路径不存在 + 路径在 renderer 目录下
     if (IMAGE_EXTENSIONS.has(ext) && currentFile && !fs.existsSync(filePath) && filePath.startsWith(rendererDir)) {
       const relativePath = path.relative(rendererDir, filePath);
@@ -31,7 +30,7 @@ function setupImageProtocolInterceptor() {
         return callback({ path: redirectedPath });
       }
     }
-    
+
     callback({ path: filePath });
   });
 }

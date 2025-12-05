@@ -56,6 +56,9 @@ function createWindow(onFileOpened) {
 
   mainWindow.loadFile(path.join(__dirname, '../renderer.html'));
 
+  // 开启开发者工具
+  mainWindow.webContents.openDevTools();
+
   mainWindow.webContents.on('did-finish-load', () => {
     const pending = documentState.pendingFile;
     if (pending && onFileOpened) {
