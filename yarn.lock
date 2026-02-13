@@ -591,10 +591,10 @@ chalk@^4.0.0, chalk@^4.1.0, chalk@^4.1.1, chalk@^4.1.2:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
-cherry-muse@^1.0.2:
-  version "1.0.4"
-  resolved "https://registry.npmmirror.com/cherry-muse/-/cherry-muse-1.0.4.tgz#b892880e2d30984a4151ce248261c121f94102fa"
-  integrity sha512-+qTDgfTvgfBkoaSiftk3GHyz3/kghSObEnuFTx06f3lqV8UUiCZ2rp9xDw81ZD0r5Pgery9rkSJ4r3XM4WzVdw==
+cherry-muse@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.npmmirror.com/cherry-muse/-/cherry-muse-1.0.5.tgz#c4e66eae4ce6703a67473fee9dd2ab0030d2d9d3"
+  integrity sha512-IDV6VwoONpp8yZew9EwzFs2/RHNykUeXdVdR9wFkxWgmuI/gO9EoSGeUi+dZUmsrrkW/+GOYTZGUQyVuRKyFpw==
 
 chownr@^2.0.0:
   version "2.0.0"
